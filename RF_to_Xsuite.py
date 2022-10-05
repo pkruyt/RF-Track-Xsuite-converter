@@ -10,7 +10,7 @@ sys.path.append(RFTrackPath)
 import RF_Track as RFT
 
 
-def RF_TO_XSUITE_converter(B0,p0c,beta,m_ion,q0,S):
+def RF_TO_XSUITE_converter(B0,particle_sample,S):
     """The desired variables that are needed for a beam in Xsuite are:
         
         1. x
@@ -27,9 +27,13 @@ def RF_TO_XSUITE_converter(B0,p0c,beta,m_ion,q0,S):
     #p0c=setup.Ions_P*1e6
     context = xo.ContextCpu()
     buf = context.new_buffer()
+    
         
     beam=B0.get_phase_space("%x %Px  %y %Py %t %P")
-    
+    p0c=particle_sample.p0c[0]
+    beta0=particle_sample.beta0[0]
+    q0=particle_sample.q0
+    mass0=particle_sample.mass0
     ###########################################################################
     #x
     x = beam[:,0]*1e-3
@@ -44,7 +48,7 @@ def RF_TO_XSUITE_converter(B0,p0c,beta,m_ion,q0,S):
     #z
     t = beam[:,4]
     accumulated_length = [S]*len(x) 
-    zeta=accumulated_length-(beta*t*1e-3) # according to definition from https://github.com/xsuite/xsuite/issues/8
+    zeta=accumulated_length-(beta0*t*1e-3) # according to definition from https://github.com/xsuite/xsuite/issues/8
     #delta        
     P = beam[:,5]*1e6
     delta = (P-p0c)/p0c
@@ -52,7 +56,7 @@ def RF_TO_XSUITE_converter(B0,p0c,beta,m_ion,q0,S):
     """Build into one beam in Xsuite"""
 
     particles = xp.Particles(_context=context,
-            mass0=m_ion, q0=q0, p0c=p0c, 
+            mass0=mass0, q0=q0, p0c=p0c, 
             x=x, px=px, y=y, py=py,
             zeta=zeta, delta=delta)
     

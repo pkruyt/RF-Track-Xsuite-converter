@@ -105,6 +105,8 @@ tracker_SPS = xt.Tracker(_context=context, _buffer=buf, line=sequence)
 # Build a reference particle
 particle_sample = xp.Particles(mass0=m_ion, q0=q0, p0c=p0c)
 
+
+
 particles0 = xp.generate_matched_gaussian_bunch(
           num_particles=n_part,
           #total_intensity_particles=bunch_intensity,
@@ -127,7 +129,7 @@ particles0 = xp.generate_matched_gaussian_bunch(
 
 particles_old=particles0.copy()
 
-#particles0.delta=0
+particles0.delta=0
 print('z0',particles0.zeta)
 sequence.particle_ref = particle_sample
 twiss = tracker_SPS.twiss(symplectify=False)
@@ -157,7 +159,7 @@ S=num_turns*length
 #%%
 
 beam0=XSUITE_TO_RF_converter(particles0,zeta_init,S)
-part1=RF_TO_XSUITE_converter(beam0,p0c,beta,m_ion,q0,S)
+part1=RF_TO_XSUITE_converter(beam0,particle_sample,S)
 
 
 zeta1=part1.zeta
