@@ -10,7 +10,7 @@ sys.path.append(RFTrackPath)
 import RF_Track as RFT
 
 
-def RF_TO_XSUITE_converter(B0,particle_sample,S):
+def RF_TO_XSUITE_converter(B0,S):
     """The desired variables that are needed for a beam in Xsuite are:
         
         1. x
@@ -30,23 +30,37 @@ def RF_TO_XSUITE_converter(B0,particle_sample,S):
     
         
     beam=B0.get_phase_space("%x %Px  %y %Py %t %P")
-    p0c=particle_sample.p0c[0]
-    beta0=particle_sample.beta0[0]
-    q0=particle_sample.q0
-    mass0=particle_sample.mass0
+    # p0c=particle_sample.p0c[0]
+    # beta0=particle_sample.beta0[0]
+    # q0=particle_sample.q0
+    # mass0=particle_sample.mass0
+    beam2=B0.get_phase_space("%m %Q  %y %Py %t %P")
+    p0c=beam[:,5][0]*1e6
+    #beta0=particle_sample.beta0[0]
+
+
+
+
+    q0=beam2[:,1][0]
+    mass0=beam2[:,0][0]*1e6
+
+    gamma = np.sqrt( 1 + (p0c/mass0)**2 ) # ion relativistic factor
+    beta0 = np.sqrt(1-1/(gamma*gamma)) # ion beta
+
+    
     ###########################################################################
     #x
     x = beam[:,0]*1e-3
     #px
     Px = beam[:,1]
-    px = Px/p0c*1e6
+    px = Px*1e6/p0c
     #y
     y = beam[:,2]*1e-3
     #py
     Py = beam[:,3]
-    py = Py/p0c*1e6
+    py = Py*1e6/p0c
     #z
-    t = beam[:,4]
+    t = beam[:,4] 
     accumulated_length = [S]*len(x) 
     zeta=accumulated_length-(beta0*t*1e-3) # according to definition from https://github.com/xsuite/xsuite/issues/8
     #delta        

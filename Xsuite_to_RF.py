@@ -33,10 +33,15 @@ def XSUITE_TO_RF_converter(particles, zeta_init, S):
     # beta=particles.beta0[0]
 
     p_tot = (particles.delta*p0c+p0c)
+    print('p_tot',p_tot)
     Px = particles.px*p0c
+    print('Px',Px)
     Py = particles.py*p0c
+    print('Py',Py)
     Pz2 = (p_tot)**2-(Px)**2-(Py)**2
+    
     Pz = np.sqrt(Pz2)
+    print('Pz',Pz)
     
     gamma_particles = np.sqrt(1 + (Pz/m_ion)**2)  # ion relativistic factor
     # gamma_particles=np.sqrt( 1 + (p_tot/m_ion)**2 ) # ion relativistic factor
@@ -52,7 +57,9 @@ def XSUITE_TO_RF_converter(particles, zeta_init, S):
     X = particles.x * 1e3 #mm
     # XP
     ratio_x = Px/Pz
+    #print('ratio_x',ratio_x)
     angle_x = np.arctan(ratio_x)*1e3
+    #print('angle_x',angle_x)
     # Y
     Y = particles.y * 1e3 #mm
     # YP
@@ -69,8 +76,10 @@ def XSUITE_TO_RF_converter(particles, zeta_init, S):
     q = q0*np.ones(n_particles) #e
     ###########################################################################
     """Combine into one array and build beam in RF Track"""
-
+    arr_ref = np.column_stack(((0, 0, 0, 0, 0, p0c*1e-6, mass, q)))
     arr = np.column_stack(((X, angle_x, Y, angle_y, t, P, mass, q)))
+    
+    arr=np.vstack([arr_ref,arr])
     beam = RFT.Bunch6d(arr)
 
     return beam

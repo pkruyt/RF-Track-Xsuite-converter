@@ -14,6 +14,7 @@ import RF_Track as RFT
 from tqdm import tqdm
 import matplotlib.pyplot as plt
 import datetime
+from scipy import constants 
 ####################
 # Choose a context #
 ####################
@@ -31,13 +32,14 @@ n_part = int(1e5)
 
 
 # Ion properties:
-m_u = 931.49410242e6 # eV/c^2 -- atomic mass unit
 A = 207.98 # Lead-208
 Z = 82  # Number of protons in the ion (Lead)
 Ne = 3 # Number of remaining electrons (Lithium-like)
-m_e = 0.511e6 # eV/c^2 -- electron mass
-m_p = 938.272088e6 # eV/c^2 -- proton mass
-c = 299792458.0 # m/s
+
+c = constants.c # m/s
+m_u=constants.physical_constants['atomic mass unit-electron volt relationship'][0] # eV/c^2 -- atomic mass unit
+m_e=constants.m_e/constants.e*c*c # eV/c^2 -- electron mass
+m_p=constants.m_p/constants.e*c*c # eV/c^2 -- proton mass
 
 m_ion = A*m_u + Ne*m_e # eV/c^2
 
@@ -55,7 +57,7 @@ beta = np.sqrt(1-1/(gamma*gamma)) # ion beta
 # RF CAVITY #
 ##################
 
-fname_sequence = '/home/pkruyt/anaconda3/lib/python3.9/site-packages/xtrack/test_data/sps_w_spacecharge/line_no_spacecharge_and_particle.json'
+fname_sequence = fname_sequence ='/home/pkruyt/cernbox/xsuite/xtrack/test_data/sps_w_spacecharge/line_no_spacecharge_and_particle.json'
 
 with open(fname_sequence, 'r') as fid:
      input_data = json.load(fid)
