@@ -53,16 +53,6 @@ context = xo.ContextCpu()         # For CPU
 ## Build particle object on context
 
 
-# particles = xp.Particles(p0c=1e20, #eV
-#                         q0=1, mass0=xp.PROTON_MASS_EV,
-#                         x=[1],
-#                         px=[1],
-#                         y=[1],
-#                         py=[1],
-#                         zeta=[3],
-#                         delta=[1],
-#                         _context=context)
-
 particles = xp.Particles(p0c=1e15, #eV
                         q0=1, mass0=xp.PROTON_MASS_EV,
                         x=[-1e-3],
@@ -73,28 +63,9 @@ particles = xp.Particles(p0c=1e15, #eV
                         delta=[1],
                         _context=context)
 
-particles_old=particles.copy()
-particles_old2=particles.copy()
 
-zeta_init = particles_old.zeta
-
-drift=xt.Drift(length=1)
-
-line=xt.Line()
-
-line.append_element(drift, 'drift')
-
-
-
-
-tracker=xt.Tracker(_context=context, _buffer=buf, line=line,reset_s_at_end_turn=False)
-
-tracker.track(particles,num_turns=10)
-
-#tracker = line.build_tracker(_context=context, )
 
 #%%
-
 def Xsuite_get_phase_space(particles):
 
     x=particles.x
@@ -115,17 +86,16 @@ def Xsuite_get_phase_space(particles):
 from  Xsuite_to_RF import XSUITE_TO_RF_converter
 from RF_to_Xsuite import RF_TO_XSUITE_converter
 
-
+zeta_init = particles.zeta
+length = 0
 beta=particles.beta0[0]
 
-S=1
-
+S=0
 
 #%%
 
-
-beam0=XSUITE_TO_RF_converter(particles,zeta_init,S)
-part1=RF_TO_XSUITE_converter(beam0,S)
+beam0=XSUITE_TO_RF_converter(particles,zeta_init)
+part1=RF_TO_XSUITE_converter(beam0)
 
 
 zeta1=part1.zeta
@@ -136,32 +106,7 @@ phase_space0_RF=beam0.get_phase_space("%x %Px  %y %Py %Z %d")
 
 phase0=Xsuite_get_phase_space(particles)
 phase1=Xsuite_get_phase_space(part1)
-phase_old=Xsuite_get_phase_space(particles_old)
+
 part1.p0c
 
-
-#%%
-D=RFT.Drift(length_=1)
-L=RFT.Lattice()
-
-L.append(D)
-
-
-beam2=XSUITE_TO_RF_converter(particles_old2,zeta_init,0)
-
-phase22=beam2.get_phase_space("%x %Px  %y %Py %Z %d")
-
-beam2=L.track(beam2)
-
-
-phase222=beam2.get_phase_space("%x %Px  %y %Py %Z %d")
-
-phase2222=beam2.get_phase_space("%S")
-
-
-part2=RF_TO_XSUITE_converter(beam2,1)
-
-phase2=Xsuite_get_phase_space(part2)
-
-s1=particles.s
 
