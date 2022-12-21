@@ -109,18 +109,18 @@ from RF_to_Xsuite import RF_TO_XSUITE_converter
 
 beta=particles.beta0[0]
 
-S=1
+
 aa=particles.s
 
 #%%
 
 
-beam0=XSUITE_TO_RF_converter(particles,zeta_init)
+beam0=XSUITE_TO_RF_converter(particles)
 
 temp1=beam0.get_phase_space("%m %Q  %y %Py %t %P")
 
 part1=RF_TO_XSUITE_converter(beam0)
-part1=part1.filter(part1.x!=0)
+#part1=part1.filter(part1.x!=0)
 
 
 zeta1=part1.zeta
@@ -142,7 +142,7 @@ L=RFT.Lattice()
 L.append(D)
 
 
-beam2=XSUITE_TO_RF_converter(particles_old2,zeta_init)
+beam2=XSUITE_TO_RF_converter(particles_old2)
 
 phase22=beam2.get_phase_space("%x %Px  %y %Py %Z %d")
 
