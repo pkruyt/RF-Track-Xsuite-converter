@@ -53,6 +53,7 @@ context = xo.ContextCpu()         # For CPU
 ## Build particle object on context
 
 
+
 particles = xp.Particles(p0c=1e15, #eV
                         q0=1, mass0=xp.PROTON_MASS_EV,
                         x=[-1e-3],
@@ -65,7 +66,24 @@ particles = xp.Particles(p0c=1e15, #eV
 
 
 
+drift=xt.Drift(length=1)
+
+line=xt.Line()
+
+line.append_element(drift, 'drift')
+
+
+
+
+tracker=xt.Tracker(_context=context, _buffer=buf, line=line,reset_s_at_end_turn=False)
+
+tracker.track(particles,num_turns=1)
+
+
+#tracker = line.build_tracker(_context=context, )
+
 #%%
+
 def Xsuite_get_phase_space(particles):
 
     x=particles.x
@@ -86,27 +104,40 @@ def Xsuite_get_phase_space(particles):
 from  Xsuite_to_RF import XSUITE_TO_RF_converter
 from RF_to_Xsuite import RF_TO_XSUITE_converter
 
-zeta_init = particles.zeta
-length = 0
-beta=particles.beta0[0]
 
-S=0
+#beta=particles.beta0[0]
+
 
 #%%
 
-beam0=XSUITE_TO_RF_converter(particles)
-part1=RF_TO_XSUITE_converter(beam0)
+def test_inplace():
+
+    particles = xp.Particles(p0c=1e15, #eV
+                            q0=1, mass0=xp.PROTON_MASS_EV,
+                            x=[-1e-3],
+                            px=[-1e-5],
+                            y=[2e-3],
+                            py=[-3e-5],
+                            zeta=[-1e-2],
+                            delta=[1],
+                            _context=context)
+    
+    
+    beam_RF=XSUITE_TO_RF_converter(particles)
+    particles_XS=RF_TO_XSUITE_converter(beam_RF)
+    particles_XS=particles_XS.filter(particles_XS.x!=0)
+      
+    
+    
+    phase0=Xsuite_get_phase_space(particles)
+       
+    phase1=Xsuite_get_phase_space(particles_XS)
+    
+    assert np.allclose(phase1,phase0,rtol=1e-9, atol=1e-9)
+    
+    
+    
 
 
-zeta1=part1.zeta
-
-phase_space0_RF=beam0.get_phase_space("%x %Px  %y %Py %Z %d")
-
-
-
-phase0=Xsuite_get_phase_space(particles)
-phase1=Xsuite_get_phase_space(part1)
-
-part1.p0c
-
+test_inplace()
 
