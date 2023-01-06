@@ -67,7 +67,8 @@ def RF_TO_XSUITE_converter(B0):
             zeta=zeta, delta=delta)
     
     particles.s=S
-   
+       
+    particles=particles.filter(particles.x!=0)
     
     return particles
 

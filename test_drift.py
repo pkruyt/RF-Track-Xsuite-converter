@@ -80,10 +80,8 @@ line.append_element(drift, 'drift')
 
 tracker=xt.Tracker(_context=context, _buffer=buf, line=line,reset_s_at_end_turn=False)
 
-tracker.track(particles,num_turns=1)
 
 
-#tracker = line.build_tracker(_context=context, )
 
 #%%
 
@@ -108,33 +106,6 @@ from  Xsuite_to_RF import XSUITE_TO_RF_converter
 from RF_to_Xsuite import RF_TO_XSUITE_converter
 
 
-beta=particles.beta0[0]
-
-
-aa=particles.s
-
-#%%
-
-
-beam0=XSUITE_TO_RF_converter(particles)
-
-temp1=beam0.get_phase_space("%m %Q  %y %Py %t %P")
-
-part1=RF_TO_XSUITE_converter(beam0)
-#part1=part1.filter(part1.x!=0)
-
-
-zeta1=part1.zeta
-
-phase_space0_RF=beam0.get_phase_space("%x %Px  %y %Py %Z %d")
-
-
-
-phase0=Xsuite_get_phase_space(particles)
-phase1=Xsuite_get_phase_space(part1)
-phase_old=Xsuite_get_phase_space(particles_old)
-part1.p0c
-
 
 #%%
 D=RFT.Drift(length_=1)
@@ -143,21 +114,58 @@ L=RFT.Lattice()
 L.append(D)
 
 
-beam2=XSUITE_TO_RF_converter(particles_old2)
-
-phase22=beam2.get_phase_space("%x %Px  %y %Py %Z %d")
-
-beam2=L.track(beam2)
+tracker.track(particles,num_turns=1)
 
 
-phase222=beam2.get_phase_space("%x %Px  %y %Py %Z %d")
-
-SS=beam2.get_phase_space("%S")
 
 
-part2=RF_TO_XSUITE_converter(beam2)
+#%%
 
-phase2=Xsuite_get_phase_space(part2)
+num_part=4000
 
-s1=particles.s
+np.random.seed(123)
 
+particles = xp.Particles(p0c=1e15, #eV
+                        q0=1, mass0=xp.PROTON_MASS_EV,
+                        x=np.random.normal(-1e-3, 1e-3, num_part),
+                        px=np.random.normal(-1e-3, 1e-3, num_part),
+                        y=np.random.normal(-1e-3, 1e-3, num_part),
+                        py=np.random.normal(-1e-3, 1e-3, num_part),
+                        zeta=np.random.normal(-1e-3, 1e-3, num_part),
+                        delta=np.random.normal(-1e-3, 1e-3, num_part),
+                        _context=context)
+ 
+particles_init = particles.copy() # save for later use
+
+
+#tracking in Xsuite
+tracker.track(particles,num_turns=1)
+
+
+#Tracking in RF Track
+beam_RF=XSUITE_TO_RF_converter(particles_init)
+beam_RF=L.track(beam_RF)
+
+
+#convert back to Xsuite so they can be compared
+particles_XS=RF_TO_XSUITE_converter(beam_RF)
+particles_XS=particles_XS.filter(particles_XS.x!=0)
+  
+
+#read out both phase spaces
+phase0=Xsuite_get_phase_space(particles)
+phase1=Xsuite_get_phase_space(particles_XS)
+
+# p0=phase0[3]
+# p1=phase1[3]
+
+assert np.allclose(phase1,phase0,rtol=1e-7, atol=1e-7)
+
+# # Check if all the elements of phase1 are close to the corresponding elements of phase0
+# if not np.allclose(phase1, phase0, rtol=1e-7, atol=1e-7):
+#     # Find the indices of the elements that are not close
+#     indices = np.where(np.isclose(phase1, phase0, rtol=1e-9, atol=1e-9) == False)[0]
+    
+#     # Print an error message for each of these elements
+#     for i in indices:
+#         print(f"Error: element {i} in phase1 is not close to element {i} in phase0")
