@@ -70,11 +70,7 @@ def XSUITE_TO_RF_converter(particles):
     q = q0*np.ones(n_particles) #e
     ###########################################################################
     """Combine into one array and build beam in RF Track"""
-    print('mass:',mass)  
-    print('q:',q)
-    print('t_ref:',t_ref)
-    print('p0c:',p0c)
-    print('t:',t)
+    
     arr_ref = np.column_stack(((0, 0, 0, 0, t_ref[0], p0c*1e-6, mass[0], q[0])))
     arr = np.column_stack(((X, angle_x, Y, angle_y, t, P, mass, q)))
     
