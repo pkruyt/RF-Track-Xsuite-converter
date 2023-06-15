@@ -37,11 +37,11 @@ def XSUITE_TO_RF_converter(particles):
     Pz2 = (p_tot)**2-(Px)**2-(Py)**2
     Pz = np.sqrt(Pz2) 
     
-    gamma_particles = np.sqrt(1 + (Pz/m_ion)**2)  # ion relativistic factor
+    gamma_particles = np.hypot(m_ion, p_tot) / m_ion # np.sqrt(1 + (Pz/m_ion)**2)  # ion relativistic factor
     # gamma_particles=np.sqrt( 1 + (p_tot/m_ion)**2 ) # ion relativistic factor
     beta_particles = np.sqrt(1-1/(gamma_particles*gamma_particles))  # ion beta
         
-    gamma_ref = np.sqrt(1 + (p0c/m_ion)**2)  # ion relativistic factor
+    gamma_ref = np.hypot(m_ion, p0c) / m_ion  # ion relativistic factor
     beta_ref = np.sqrt(1-1/(gamma_ref*gamma_ref))  # ion beta
            
     accumulated_length = particles.s
@@ -51,17 +51,18 @@ def XSUITE_TO_RF_converter(particles):
     # X
     X = particles.x * 1e3 #mm
     # XP
-    ratio_x = Px/Pz
-    angle_x = np.arctan(ratio_x)*1e3
+    xp = Px/Pz*1e3
+    #ratio_x = Px/Pz
+    #angle_x = np.arctan(ratio_x)*1e3
     # Y
     Y = particles.y * 1e3 #mm
     # YP
-    ratio_y = Py/Pz
-    angle_y = np.arctan(ratio_y)*1e3
+    yp = Py/Pz*1e3
+    #ratio_y = Py/Pz
+    #angle_y = np.arctan(ratio_y)*1e3
     # T
-    t_ref=accumulated_length*1e3/beta_ref
-    t_tot = (0-particles.zeta)/(beta_ref) #arrival time in m/c
-    t = (t_tot)*1e3 + t_ref #mm/c
+    t_ref = accumulated_length/beta_ref # m/c
+    t = (t_ref - particles.zeta) * 1e3 / beta_ref; # mm/c
     # P
     P = p_tot*1e-6 #Mev/c
     # M
@@ -72,10 +73,10 @@ def XSUITE_TO_RF_converter(particles):
     """Combine into one array and build beam in RF Track"""
     
     arr_ref = np.column_stack(((0, 0, 0, 0, t_ref[0], p0c*1e-6, mass[0], q[0])))
-    arr = np.column_stack(((X, angle_x, Y, angle_y, t, P, mass, q)))
+    arr = np.column_stack(((X, xp, Y, yp, t, P, mass, q)))
     
     arr=np.vstack([arr_ref,arr])
     beam = RFT.Bunch6d(arr)
+    beam.S = accumulated_length[0]
     
-
     return beam
