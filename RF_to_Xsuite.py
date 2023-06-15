@@ -29,16 +29,16 @@ def RF_TO_XSUITE_converter(B0):
     #buf = context.new_buffer()
     
         
-    beam=B0.get_phase_space("%x %Px  %y %Py %t %P")
-    beam2=B0.get_phase_space("%m %Q  %y %Py %t %P")
-            
+    beam=B0.get_phase_space("%x %Px  %y %Py %t %P %m %Q")
+                
     p0c=beam[:,5][0]*1e6
-    q0=beam2[:,1][0]
-    mass0=beam2[:,0][0]*1e6
-
-    gamma = np.sqrt( 1 + (p0c/mass0)**2 ) # ion relativistic factor
+    q0=beam[:,7][0]
+    mass0=beam[:,6][0]*1e6
+   
+    gamma = np.hypot(mass0, p0c) / mass0 # ion relativistic factor
     beta0 = np.sqrt(1-1/(gamma*gamma)) # ion beta
     
+    beam=beam[1:,:]
     ###########################################################################
     #x
     x = beam[:,0]*1e-3
@@ -51,10 +51,9 @@ def RF_TO_XSUITE_converter(B0):
     Py = beam[:,3]
     py = Py*1e6/p0c
     #z
+    S=beam.S
     t = beam[:,4] 
-    S=beam[0,4]*1e-3
-    accumulated_length = [S]*len(x) 
-    zeta=accumulated_length-(beta0*(t)*1e-3) # according to definition from https://github.com/xsuite/xsuite/issues/8
+    zeta=S-(beta0*(t)*1e-3) # according to definition from https://github.com/xsuite/xsuite/issues/8
     #delta        
     P = beam[:,5]*1e6
     delta = (P-p0c)/p0c
@@ -68,7 +67,7 @@ def RF_TO_XSUITE_converter(B0):
     
     particles.s=S
        
-    particles=particles.filter(particles.x!=0)
+    #particles=particles.filter(particles.x!=0)
     
     return particles
 
