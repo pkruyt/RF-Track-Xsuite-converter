@@ -31,14 +31,14 @@ def RF_TO_XSUITE_converter(B0):
         
     beam=B0.get_phase_space("%x %Px  %y %Py %t %P %m %Q")
                 
-    p0c=beam[:,5][0]*1e6
-    q0=beam[:,7][0]
-    mass0=beam[:,6][0]*1e6
+    p0c=beam[0,5]*1e6
+    q0=beam[0,7]
+    mass0=beam[0,6]*1e6
    
     gamma = np.hypot(mass0, p0c) / mass0 # ion relativistic factor
     beta0 = np.sqrt(1-1/(gamma*gamma)) # ion beta
     
-    beam=beam[1:,:]
+    #beam=beam[1:,:]
     ###########################################################################
     #x
     x = beam[:,0]*1e-3
@@ -67,7 +67,7 @@ def RF_TO_XSUITE_converter(B0):
     
     particles.s=S
        
-    #particles=particles.filter(particles.x!=0)
+    particles=particles.filter(particles.x!=0)
     
     return particles
 
